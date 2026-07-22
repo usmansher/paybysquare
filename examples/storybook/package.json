@@ -11,17 +11,18 @@
   "dependencies": {
     "@paybysquare/core": "file:../../packages/core",
     "qrcode.react": "^4.2.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
   },
   "devDependencies": {
-    "@storybook/addon-essentials": "^8.6.14",
-    "@storybook/react": "^8.6.14",
-    "@storybook/react-vite": "^8.6.14",
-    "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1",
-    "storybook": "^8.6.14",
-    "typescript": "^5.7.2",
-    "vite": "^5.4.11"
+    "@storybook/addon-docs": "^10.5.3",
+    "@storybook/addon-mcp": "^0.7.0",
+    "@storybook/react": "^10.5.3",
+    "@storybook/react-vite": "^10.5.3",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "storybook": "^10.5.3",
+    "typescript": "^7.0.2",
+    "vite": "^8.1.5"
   }
 }

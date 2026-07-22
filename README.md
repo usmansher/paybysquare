@@ -1,11 +1,9 @@
 # Pay By Square
 
-<!-- Badges: enable once the repo is public and workflows have run.
 [![CI](https://github.com/usmansher/paybysquare/actions/workflows/ci.yml/badge.svg)](https://github.com/usmansher/paybysquare/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/%40paybysquare%2Fcore)](https://www.npmjs.com/package/@paybysquare/core)
 [![Packagist](https://img.shields.io/packagist/v/paybysquare/php)](https://packagist.org/packages/paybysquare/php)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
--->
 
 An open-source, multi-language Pay By Square suite by usmansher: generate the
 payload behind Slovak banking payment QR codes in TypeScript, PHP, Laravel, or

@@ -62,6 +62,17 @@ jobs:
             echo "run=false" >> "$GITHUB_OUTPUT"
           fi
 
+      # The split action silently reports success when the push fails (it
+      # swallows git errors), so fail loudly up front when the token is absent
+      # rather than pretending to mirror.
+      - name: Require SPLIT_TOKEN
+        if: ${{ steps.gate.outputs.run == 'true' }}
+        run: |
+          if [[ -z "$GITHUB_TOKEN" ]]; then
+            echo "::error::SPLIT_TOKEN secret is not set; cannot push to split repositories."
+            exit 1
+          fi
+
       # The php package's tests decode against the shared spec fixtures, which
       # live once under spec/ in the monorepo (not duplicated in the package).
       # Vendor them into the package tree so the split repo tests run standalone;
@@ -76,6 +87,24 @@ jobs:
           git config user.email 'github-actions[bot]@users.noreply.github.com'
           git add -f packages/php/tests/fixtures
           git commit -m 'chore: vendor spec fixtures for split'
+
+      # The laravel package's composer.json carries a `path` repository pointing
+      # at ../php for monorepo development; that path does not exist in the
+      # standalone split repo and would break `composer install` there. Strip it
+      # for the split (dependency-level repositories are ignored by consumers
+      # anyway). This commit is local to the runner and never lands on main.
+      - name: Strip monorepo path repository for the split
+        if: ${{ steps.gate.outputs.run == 'true' && matrix.package == 'laravel' }}
+        run: |
+          php -r '
+            $file = "packages/laravel/composer.json";
+            $json = json_decode(file_get_contents($file), true, 512, JSON_THROW_ON_ERROR);
+            unset($json["repositories"]);
+            file_put_contents($file, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
+          '
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git commit -am 'chore: strip monorepo path repository for split'
 
       - name: Mirror ${{ matrix.local_path }} to main (branch)
         if: ${{ steps.gate.outputs.run == 'true' && steps.gate.outputs.mode == 'branch' }}
@@ -97,3 +126,19 @@ jobs:
           repository_name: ${{ matrix.split_repository }}
           user_name: 'github-actions[bot]'
           user_email: 'github-actions[bot]@users.noreply.github.com'
+
+      # Belt-and-braces against the action's swallowed push errors: assert the
+      # ref we just pushed actually exists on the split repository.
+      - name: Verify split push
+        if: ${{ steps.gate.outputs.run == 'true' }}
+        run: |
+          remote="https://x-access-token:${GITHUB_TOKEN}@github.com/usmansher/${{ matrix.split_repository }}.git"
+          if [[ '${{ steps.gate.outputs.mode }}' == 'tag' ]]; then
+            ref='refs/tags/${{ steps.gate.outputs.version }}'
+          else
+            ref='refs/heads/main'
+          fi
+          if ! git ls-remote --exit-code "$remote" "$ref" > /dev/null; then
+            echo "::error::${ref} not found on ${{ matrix.split_repository }} after split push."
+            exit 1
+          fi

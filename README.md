@@ -16,6 +16,10 @@ payload in every language.
 in-browser Storybook runs the real `@paybysquare/core` encoder and renders
 the QR as you edit the payment.
 
+Beyond the cross-language conformance suite, the generated codes are
+scan-tested with real Slovak banking apps: payment details pre-fill as
+expected, including UTF-8 diacritics in names and notes.
+
 ## Repository layout
 
 | Path | What it is | Distribution |

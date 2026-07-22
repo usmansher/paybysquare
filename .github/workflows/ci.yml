@@ -15,8 +15,8 @@ jobs:
       run:
         working-directory: packages/core
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -40,7 +40,7 @@ jobs:
       run:
         working-directory: packages/php
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
@@ -48,7 +48,7 @@ jobs:
       - name: Get composer cache directory
         id: composer-cache
         run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: composer-php-${{ hashFiles('packages/php/composer.json') }}
@@ -63,7 +63,7 @@ jobs:
       run:
         working-directory: packages/laravel
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
@@ -71,7 +71,7 @@ jobs:
       - name: Get composer cache directory
         id: composer-cache
         run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: composer-laravel-${{ hashFiles('packages/laravel/composer.json') }}
@@ -83,8 +83,8 @@ jobs:
     name: service (Fastify)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -113,7 +113,7 @@ jobs:
     name: spec self-check (liblzma)
     runs-on: ubuntu-latest # ships python3 with the lzma module
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # Owns the two checks that need a general LZMA decoder, so the per-language
       # suites don't: every payloadReference and every golden payload must decode
       # back to its TSV via liblzma.
@@ -124,11 +124,11 @@ jobs:
     name: OpenAPI lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # spec/openapi.yaml is still being authored on some branches; skip
       # gracefully when it is absent. hashFiles only works after checkout,
       # so the condition lives on the steps rather than the job.
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         if: ${{ hashFiles('spec/openapi.yaml') != '' }}
         with:
           node-version: 22

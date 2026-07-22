@@ -41,7 +41,7 @@ jobs:
             local_path: packages/laravel
             split_repository: paybysquare-laravel
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # Decide whether THIS matrix package participates in the current ref, and
       # for tag releases strip the `<package>-` prefix to a clean version.
@@ -113,7 +113,7 @@ jobs:
 
       - name: Mirror ${{ matrix.local_path }} to main (branch)
         if: ${{ steps.gate.outputs.run == 'true' && steps.gate.outputs.mode == 'branch' }}
-        uses: symplify/monorepo-split-github-action@ac9845270ef47266435b4f124b133a323619e738 # v2.3.0
+        uses: symplify/monorepo-split-github-action@14e42e2437f674b8987c1f50ca3689116aea1893 # v2.4.5
         with:
           package_directory: ${{ matrix.local_path }}
           repository_organization: usmansher
@@ -123,7 +123,7 @@ jobs:
 
       - name: Release ${{ matrix.local_path }} as ${{ steps.gate.outputs.version }} (tag)
         if: ${{ steps.gate.outputs.run == 'true' && steps.gate.outputs.mode == 'tag' }}
-        uses: symplify/monorepo-split-github-action@ac9845270ef47266435b4f124b133a323619e738 # v2.3.0
+        uses: symplify/monorepo-split-github-action@14e42e2437f674b8987c1f50ca3689116aea1893 # v2.4.5
         with:
           tag: ${{ steps.gate.outputs.version }}
           package_directory: ${{ matrix.local_path }}

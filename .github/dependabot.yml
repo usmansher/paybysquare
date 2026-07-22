@@ -1,0 +1,33 @@
+# Weekly dependency updates for every ecosystem in the monorepo.
+# Minor/patch bumps are grouped into a single PR per ecosystem to keep
+# the noise down; majors arrive as individual PRs for a closer look.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions-minor-and-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: npm
+    directories:
+      - /packages/core
+      - /service
+      - /examples/storybook
+    schedule:
+      interval: weekly
+    groups:
+      npm-minor-and-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: composer
+    directories:
+      - /packages/php
+      - /packages/laravel
+    schedule:
+      interval: weekly
+    groups:
+      composer-minor-and-patch:
+        update-types: [minor, patch]

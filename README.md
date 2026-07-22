@@ -12,6 +12,10 @@ verified in CI against the same shared test vectors and the same normative
 reference verifier, so identical input produces an identically-decodable
 payload in every language.
 
+**[▶ Try the live demo](https://usmansher.github.io/paybysquare/)** — the
+in-browser Storybook runs the real `@paybysquare/core` encoder and renders
+the QR as you edit the payment.
+
 ## Repository layout
 
 | Path | What it is | Distribution |

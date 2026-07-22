@@ -83,9 +83,14 @@ jobs:
           mkdir -p packages/php/tests/fixtures
           cp spec/test-vectors.json packages/php/tests/fixtures/test-vectors.json
           cp spec/conformance-corpus.json packages/php/tests/fixtures/conformance-corpus.json
+          # The monorepo gitignores the injected fixtures (the canonical copy
+          # lives in spec/), but the split action re-adds the copied working
+          # tree with a plain `git add` in the target clone — so the ignore
+          # rule must not travel into the split repo or the fixtures vanish.
+          sed -i '/# Shared spec fixtures/,/^\/tests\/fixtures\/$/d' packages/php/.gitignore
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
-          git add -f packages/php/tests/fixtures
+          git add -f packages/php/tests/fixtures packages/php/.gitignore
           git commit -m 'chore: vendor spec fixtures for split'
 
       # The laravel package's composer.json carries a `path` repository pointing

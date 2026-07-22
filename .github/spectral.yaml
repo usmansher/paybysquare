@@ -1,0 +1,6 @@
+# Minimal Spectral ruleset for linting spec/openapi.yaml in CI.
+# Extends the built-in OpenAPI ruleset; add project-specific rules below.
+extends: ["spectral:oas"]
+rules:
+  # Informative descriptions are nice to have but not build-breaking.
+  oas3-api-servers: warn

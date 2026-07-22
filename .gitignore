@@ -1,0 +1,36 @@
+# Environment variables
+.env
+
+# Node (packages/core, service)
+node_modules/
+dist/
+dist-test/
+# package-lock.json is committed everywhere.
+
+# PHP (packages/php, packages/laravel)
+vendor/
+.phpunit.cache/
+.phpunit.result.cache
+# Library packages do not commit lockfiles; service-like apps would keep theirs.
+packages/php/composer.lock
+packages/laravel/composer.lock
+
+# Spec tooling (throwaway venv for spec/tools/generate_vectors.py)
+venv/
+.venv/
+__pycache__/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

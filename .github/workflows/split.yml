@@ -1,0 +1,99 @@
+# Read-only subtree split of the Composer packages into standalone
+# repositories, so Packagist can serve paybysquare/php and
+# paybysquare/laravel from single-package repos.
+#
+# Versioning is independent per package (see docs/VERSIONING.md):
+#   - a push to main mirrors BOTH packages to their split repos (no release);
+#   - a tag `php-v1.2.3` releases only paybysquare/php as `v1.2.3`;
+#   - a tag `laravel-v1.2.3` releases only paybysquare/laravel as `v1.2.3`.
+# The package prefix is stripped so the split repo carries a clean `v*` tag
+# that Packagist understands.
+#
+# PREREQUISITES (must exist before this workflow can succeed):
+#   - Target repos github.com/usmansher/paybysquare-php and
+#     github.com/usmansher/paybysquare-laravel must already be created.
+#   - A repo secret SPLIT_TOKEN holding a GitHub token with write access
+#     to both target repositories.
+name: Split monorepo
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'php-v*'
+      - 'laravel-v*'
+
+env:
+  GITHUB_TOKEN: ${{ secrets.SPLIT_TOKEN }}
+
+jobs:
+  split:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - package: php
+            local_path: packages/php
+            split_repository: paybysquare-php
+          - package: laravel
+            local_path: packages/laravel
+            split_repository: paybysquare-laravel
+    steps:
+      - uses: actions/checkout@v4
+
+      # Decide whether THIS matrix package participates in the current ref, and
+      # for tag releases strip the `<package>-` prefix to a clean version.
+      - name: Resolve ref for ${{ matrix.package }}
+        id: gate
+        run: |
+          ref='${{ github.ref }}'
+          name='${{ github.ref_name }}'
+          prefix='${{ matrix.package }}-'
+          if [[ "$ref" == refs/heads/* ]]; then
+            echo "run=true"  >> "$GITHUB_OUTPUT"
+            echo "mode=branch" >> "$GITHUB_OUTPUT"
+          elif [[ "$name" == "$prefix"v* ]]; then
+            echo "run=true"  >> "$GITHUB_OUTPUT"
+            echo "mode=tag"  >> "$GITHUB_OUTPUT"
+            echo "version=${name#$prefix}" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      # The php package's tests decode against the shared spec fixtures, which
+      # live once under spec/ in the monorepo (not duplicated in the package).
+      # Vendor them into the package tree so the split repo tests run standalone;
+      # this commit is local to the runner and never lands on main.
+      - name: Vendor shared spec fixtures for the split
+        if: ${{ steps.gate.outputs.run == 'true' && matrix.package == 'php' }}
+        run: |
+          mkdir -p packages/php/tests/fixtures
+          cp spec/test-vectors.json packages/php/tests/fixtures/test-vectors.json
+          cp spec/conformance-corpus.json packages/php/tests/fixtures/conformance-corpus.json
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add -f packages/php/tests/fixtures
+          git commit -m 'chore: vendor spec fixtures for split'
+
+      - name: Mirror ${{ matrix.local_path }} to main (branch)
+        if: ${{ steps.gate.outputs.run == 'true' && steps.gate.outputs.mode == 'branch' }}
+        uses: symplify/monorepo-split-github-action@ac9845270ef47266435b4f124b133a323619e738 # v2.3.0
+        with:
+          package_directory: ${{ matrix.local_path }}
+          repository_organization: usmansher
+          repository_name: ${{ matrix.split_repository }}
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Release ${{ matrix.local_path }} as ${{ steps.gate.outputs.version }} (tag)
+        if: ${{ steps.gate.outputs.run == 'true' && steps.gate.outputs.mode == 'tag' }}
+        uses: symplify/monorepo-split-github-action@ac9845270ef47266435b4f124b133a323619e738 # v2.3.0
+        with:
+          tag: ${{ steps.gate.outputs.version }}
+          package_directory: ${{ matrix.local_path }}
+          repository_organization: usmansher
+          repository_name: ${{ matrix.split_repository }}
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'

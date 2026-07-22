@@ -1,0 +1,53 @@
+{
+    "name": "paybysquare/laravel",
+    "description": "Laravel integration for paybysquare/php: config defaults, facade, and Blade QR component.",
+    "keywords": ["pay-by-square", "bysquare", "qr", "payment", "slovakia", "laravel"],
+    "license": "MIT",
+    "require": {
+        "php": ">=8.2",
+        "paybysquare/php": "^0.1",
+        "illuminate/support": "^11.0|^12.0|^13.0"
+    },
+    "require-dev": {
+        "bacon/bacon-qr-code": "^3.0",
+        "orchestra/testbench": "^9.0|^10.0|^11.0",
+        "phpunit/phpunit": "^11.0|^12.0"
+    },
+    "suggest": {
+        "bacon/bacon-qr-code": "Required to render SVG QR codes with the facade/Blade component"
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../php"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "PayBySquare\\Laravel\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "PayBySquare\\Laravel\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "PayBySquare\\Laravel\\PayBySquareServiceProvider"
+            ],
+            "aliases": {
+                "PayBySquare": "PayBySquare\\Laravel\\Facades\\PayBySquare"
+            }
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

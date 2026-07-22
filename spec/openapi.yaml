@@ -1,0 +1,210 @@
+openapi: 3.1.0
+info:
+  title: Pay By Square service
+  version: 1.0.0
+  description: |
+    HTTP service around the `@paybysquare/core` encoder. Generates
+    PAY by square payloads and QR code images for single simple payment
+    orders (see spec/SPEC.md).
+
+    ## Authentication
+
+    Authentication is enforced only when the `AUTH_TOKEN` environment
+    variable is set on the server. When set, every POST endpoint requires
+    `Authorization: Bearer <AUTH_TOKEN>` and responds with 401 when the
+    token is missing or wrong. When unset, the API is open.
+servers:
+  - url: /
+tags:
+  - name: v1
+  - name: meta
+paths:
+  /v1/payload:
+    post:
+      tags: [v1]
+      operationId: createPayload
+      summary: Generate a Pay By Square payload string
+      security:
+        - {}
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentInput'
+      responses:
+        '200':
+          description: Encoded payload
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [payload]
+                properties:
+                  payload:
+                    type: string
+                    description: Base32hex-encoded Pay By Square payload.
+                    pattern: '^[0-9A-V]+$'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /v1/qr:
+    post:
+      tags: [v1]
+      operationId: createQr
+      summary: Generate a Pay By Square QR code image
+      security:
+        - {}
+        - bearerAuth: []
+      parameters:
+        - name: format
+          in: query
+          required: false
+          description: Output image format.
+          schema:
+            type: string
+            enum: [png, svg]
+            default: png
+        - name: size
+          in: query
+          required: false
+          description: Image width in pixels. Applies to PNG output only.
+          schema:
+            type: integer
+            minimum: 64
+            maximum: 1024
+            default: 256
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentInput'
+      responses:
+        '200':
+          description: QR code image
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+            image/svg+xml:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /healthz:
+    get:
+      tags: [meta]
+      operationId: health
+      summary: Liveness probe
+      responses:
+        '200':
+          description: Service is up
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status:
+                    type: string
+                    const: ok
+  /v1/openapi.json:
+    get:
+      tags: [meta]
+      operationId: getOpenApi
+      summary: This contract as JSON
+      responses:
+        '200':
+          description: OpenAPI document
+          content:
+            application/json:
+              schema:
+                type: object
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: >
+        Static token configured via the AUTH_TOKEN environment variable.
+        Enforced on POST endpoints only when AUTH_TOKEN is set.
+  responses:
+    ValidationFailed:
+      description: Invalid input
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Missing or wrong bearer token (auth enabled)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [message]
+          properties:
+            message:
+              type: string
+            field:
+              type: string
+              description: Name of the offending input field, when known.
+    PaymentInput:
+      type: object
+      required: [amount, iban, beneficiaryName]
+      properties:
+        amount:
+          type: number
+          exclusiveMinimum: 0
+          description: Payment amount; positive, at most 2 decimal places.
+        iban:
+          type: string
+          description: Beneficiary IBAN (spaces allowed, removed before encoding).
+        beneficiaryName:
+          type: string
+          minLength: 1
+          description: Beneficiary name; must be non-empty after trimming.
+        currency:
+          type: string
+          pattern: '^[A-Z]{3}$'
+          default: EUR
+          description: ISO 4217 code.
+        date:
+          type: string
+          format: date
+          description: >
+            Payment date as YYYY-MM-DD. Defaults to the server's current
+            date when omitted.
+        swift:
+          type: string
+          description: BIC/SWIFT of the beneficiary bank (8 or 11 characters).
+        variableSymbol:
+          type: string
+          pattern: '^[0-9]{0,10}$'
+        constantSymbol:
+          type: string
+          pattern: '^[0-9]{0,4}$'
+        specificSymbol:
+          type: string
+          pattern: '^[0-9]{0,10}$'
+        note:
+          type: string
+          maxLength: 140
+        beneficiaryAddress1:
+          type: string
+          maxLength: 70
+        beneficiaryAddress2:
+          type: string
+          maxLength: 70

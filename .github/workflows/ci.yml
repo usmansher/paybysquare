@@ -1,0 +1,137 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  js-core:
+    name: core (TypeScript)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/core
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: packages/core/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      # The suite uses an in-language decoder (no Python), so this is Node-only.
+      - run: npm test
+      # The committed conformance corpus is generated from this encoder; fail if
+      # an encoding change was not reflected by regenerating it.
+      - name: Verify conformance corpus is current
+        working-directory: ${{ github.workspace }}
+        run: |
+          node spec/tools/generate_corpus.mjs
+          git diff --exit-code spec/conformance-corpus.json
+
+  php:
+    name: php (Packagist library)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/php
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-php-${{ hashFiles('packages/php/composer.json') }}
+          restore-keys: composer-php-
+      - run: composer install --no-interaction --no-progress
+      - run: composer test
+
+  laravel:
+    name: laravel (Packagist package)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/laravel
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-laravel-${{ hashFiles('packages/laravel/composer.json') }}
+          restore-keys: composer-laravel-
+      - run: composer install --no-interaction --no-progress
+      - run: composer test
+
+  service:
+    name: service (Fastify)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            service/package-lock.json
+            packages/core/package-lock.json
+      # @paybysquare/core is a file: dependency on packages/core, which must
+      # be built first so its dist/ output exists.
+      - name: Build core dependency
+        working-directory: packages/core
+        run: |
+          npm ci
+          npm run build
+      - name: Install service dependencies
+        working-directory: service
+        run: npm ci
+      - name: Test service
+        working-directory: service
+        run: npm test
+      # The Dockerfile needs the repo root as build context (it copies
+      # packages/core and spec/openapi.yaml).
+      - name: Docker build smoke check
+        run: docker build -f service/Dockerfile .
+
+  spec-selfcheck:
+    name: spec self-check (liblzma)
+    runs-on: ubuntu-latest # ships python3 with the lzma module
+    steps:
+      - uses: actions/checkout@v4
+      # Owns the two checks that need a general LZMA decoder, so the per-language
+      # suites don't: every payloadReference and every golden payload must decode
+      # back to its TSV via liblzma.
+      - name: Decode all payloads via liblzma
+        run: python3 spec/tools/selfcheck.py
+
+  openapi-lint:
+    name: OpenAPI lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # spec/openapi.yaml is still being authored on some branches; skip
+      # gracefully when it is absent. hashFiles only works after checkout,
+      # so the condition lives on the steps rather than the job.
+      - uses: actions/setup-node@v4
+        if: ${{ hashFiles('spec/openapi.yaml') != '' }}
+        with:
+          node-version: 22
+      - name: Lint spec/openapi.yaml
+        if: ${{ hashFiles('spec/openapi.yaml') != '' }}
+        run: npx --yes @stoplight/spectral-cli lint --ruleset .github/spectral.yaml spec/openapi.yaml

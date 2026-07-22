@@ -1,0 +1,48 @@
+{
+  "name": "@paybysquare/core",
+  "version": "0.1.0",
+  "description": "Pay By Square (Slovak payment QR standard) payload generator. Zero runtime dependencies; runs in Node, browsers and edge runtimes.",
+  "keywords": [
+    "pay-by-square",
+    "bysquare",
+    "qr",
+    "payment",
+    "slovakia",
+    "sepa",
+    "iban"
+  ],
+  "license": "MIT",
+  "author": "usmansher",
+  "homepage": "https://github.com/usmansher/paybysquare",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/usmansher/paybysquare.git",
+    "directory": "packages/core"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "test": "tsc -p tsconfig.test.json && node --test \"dist-test/test/*.test.js\"",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.5.0"
+  }
+}

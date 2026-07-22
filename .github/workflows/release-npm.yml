@@ -1,0 +1,33 @@
+# Publishes @paybysquare/core to npm with provenance when a core-v* tag
+# is pushed (e.g. core-v0.1.0). Requires the NODE_AUTH_TOKEN repo secret
+# (an npm automation token) and id-token: write for provenance.
+name: Release npm
+
+on:
+  push:
+    tags:
+      - 'core-v*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest # python3 is preinstalled; tests use the reference verifier
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: packages/core
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: 'https://registry.npmjs.org'
+          cache: npm
+          cache-dependency-path: packages/core/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+      - run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}

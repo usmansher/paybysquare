@@ -1,0 +1,34 @@
+{
+    "name": "paybysquare/php",
+    "description": "Pay By Square (Slovak payment QR standard) payload generator. Pure PHP, no extensions, no shell-outs.",
+    "keywords": ["pay-by-square", "bysquare", "qr", "payment", "slovakia", "sepa", "iban"],
+    "license": "MIT",
+    "homepage": "https://github.com/usmansher/paybysquare",
+    "require": {
+        "php": ">=8.2"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "PayBySquare\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "PayBySquare\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "0.1.x-dev"
+        }
+    }
+}

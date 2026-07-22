@@ -1,0 +1,6 @@
+/vendor/
+/composer.lock
+/.phpunit.cache/
+# Shared spec fixtures are canonical under the monorepo's spec/ directory and
+# are injected here only by the subtree-split workflow (split.yml).
+/tests/fixtures/

@@ -1,0 +1,32 @@
+{
+  "name": "@paybysquare/service",
+  "version": "0.1.0",
+  "description": "Fastify microservice exposing Pay By Square payload and QR code generation.",
+  "private": true,
+  "license": "MIT",
+  "author": "usmansher",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "test": "tsc -p tsconfig.test.json && node --test \"dist-test/test/*.test.js\"",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {
+    "@fastify/rate-limit": "^10.0.0",
+    "@paybysquare/core": "file:../packages/core",
+    "fastify": "^5.0.0",
+    "qrcode": "^1.5.0",
+    "yaml": "^2.5.0"
+  },
+  "optionalDependencies": {
+    "ioredis": "^5.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/qrcode": "^1.5.0",
+    "typescript": "^5.5.0"
+  }
+}

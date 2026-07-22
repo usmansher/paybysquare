@@ -1,0 +1,76 @@
+{
+  "version": 1,
+  "vectors": [
+    {
+      "name": "minimal",
+      "description": "Only required fields; defaults everywhere else",
+      "input": {
+        "amount": 10,
+        "iban": "SK7283300000009111111118",
+        "beneficiaryName": "John Doe",
+        "date": "2026-07-21"
+      },
+      "tsv": "\t1\t1\t10.00\tEUR\t20260721\t\t\t\t\t\t1\tSK7283300000009111111118\t\t0\t0\tJohn Doe\t\t",
+      "payloadReference": "0004M00076OOCA8G9C98Q7MDP9AFQHMNV6JADUSHSHJD10J80MIF4F5QJR9TM0H1CR51U97Q42P78QUBLPCM8U9I3BQ72V3J410V55DPRVVVDCU000"
+    },
+    {
+      "name": "all-fields",
+      "description": "Every supported field populated",
+      "input": {
+        "amount": 1234.56,
+        "currency": "EUR",
+        "iban": "SK7283300000009111111118",
+        "swift": "FIOZSKBAXXX",
+        "variableSymbol": "2026001",
+        "constantSymbol": "0308",
+        "specificSymbol": "99",
+        "note": "Invoice FA20260103",
+        "beneficiaryName": "Acme s.r.o.",
+        "beneficiaryAddress1": "Hlavna 1",
+        "beneficiaryAddress2": "811 01 Bratislava",
+        "date": "2026-01-03"
+      },
+      "tsv": "\t1\t1\t1234.56\tEUR\t20260103\t2026001\t0308\t99\t\tInvoice FA20260103\t1\tSK7283300000009111111118\tFIOZSKBAXXX\t0\t0\tAcme s.r.o.\tHlavna 1\t811 01 Bratislava",
+      "payloadReference": "00096000F8F0JOQVEBRR6T8DJMO196QH37QKL0KUIQUCPALDO1DTTARBPTEIS6V6AMLJQQ3BONTLADMK50QLQD2O69AI7RBO3H3NFUHJF222LJJEHISBIIE9AU0PEUBJ6ELUP5OQ3RT8IKPQCL84N4J0HKB287HPVVQ737TKN8DSVA62CB1KF9CA08S4LMK66OHKRMJPCPTFVSRMSG00"
+    },
+    {
+      "name": "diacritics",
+      "description": "Slovak diacritics exercise UTF-8 encoding before CRC/LZMA",
+      "input": {
+        "amount": 25.5,
+        "iban": "SK7283300000009111111118",
+        "beneficiaryName": "Žltá ľalia, s.r.o.",
+        "note": "Faktúra č. 47 — úhrada",
+        "date": "2026-07-21"
+      },
+      "tsv": "\t1\t1\t25.50\tEUR\t20260721\t\t\t\t\tFaktúra č. 47 — úhrada\t1\tSK7283300000009111111118\t\t0\t0\tŽltá ľalia, s.r.o.\t\t",
+      "payloadReference": "000760005QT0KQM09C97P9SG3172T4VB7HPPLB1P23IDH0HDOFLGB24084PEU2AQTS0NT17IGP0JIV8UDLAV7NHOOT8LSLNHKN36QI7TFBPRHBBBS2LDEGAK5195GSL2HK5GNPO7MA0971B2MGNAOSM7GKS0OQ3OMQLEJI3LU936P2OFVNDQEG0"
+    },
+    {
+      "name": "amount-rounding",
+      "description": "Amount formats to exactly two decimals",
+      "input": {
+        "amount": 0.1,
+        "iban": "SK7283300000009111111118",
+        "beneficiaryName": "Rounding Test",
+        "date": "2026-07-21"
+      },
+      "tsv": "\t1\t1\t0.10\tEUR\t20260721\t\t\t\t\t\t1\tSK7283300000009111111118\t\t0\t0\tRounding Test\t\t",
+      "payloadReference": "0004U0003SLURPG937725105NSGFOIJBBVB4KNGP3B8T6SRTG2ETFOSVV38IISJRV8QVVBQAMGVFGLQ9M3Q86BQ01S4AJGU1R0JOC805U63OMSS9FVVVGLS800"
+    },
+    {
+      "name": "large-amount",
+      "description": "Large amount, long variable symbol (max 10 digits)",
+      "input": {
+        "amount": 9999999.99,
+        "iban": "SK7283300000009111111118",
+        "swift": "FIOZSKBAXXX",
+        "variableSymbol": "1234567890",
+        "beneficiaryName": "Big Corp a.s.",
+        "date": "2026-12-31"
+      },
+      "tsv": "\t1\t1\t9999999.99\tEUR\t20261231\t1234567890\t\t\t\t\t1\tSK7283300000009111111118\tFIOZSKBAXXX\t0\t0\tBig Corp a.s.\t\t",
+      "payloadReference": "0006K0003CMNVHHGPS3CLJ6NR239TQE2O36JIRL8CJMFCTHKT4G4EFB9DJ1N82G0H24PEOK3QM58J97M6DC20G1DH71J3UNO9LG6RGTJ7PVQTHD0503M5M36OSUCOTLUKMJMQ5R8Q4LUE44ER1FVVR79B000"
+    }
+  ]
+}

@@ -15,11 +15,11 @@
     "start": "node dist/server.js"
   },
   "dependencies": {
-    "@fastify/rate-limit": "^11.1.0",
+    "@fastify/rate-limit": "^11.2.0",
     "@paybysquare/core": "file:../packages/core",
-    "fastify": "^5.10.0",
+    "fastify": "^5.12.5",
     "qrcode": "^1.5.4",
-    "yaml": "^2.9.0"
+    "yaml": "^2.9.1"
   },
   "optionalDependencies": {
     "ioredis": "^5.11.1"

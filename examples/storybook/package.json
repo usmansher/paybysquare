@@ -16,7 +16,7 @@
   },
   "devDependencies": {
     "@storybook/addon-docs": "^10.6.0",
-    "@storybook/addon-mcp": "^0.7.0",
+    "@storybook/addon-mcp": "^10.6.0",
     "@storybook/react": "^10.6.0",
     "@storybook/react-vite": "^10.6.0",
     "@types/react": "^19.3.0",

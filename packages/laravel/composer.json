@@ -11,7 +11,7 @@
     "require-dev": {
         "bacon/bacon-qr-code": "^3.0",
         "orchestra/testbench": "^9.0|^10.0|^11.0",
-        "phpunit/phpunit": "^11.0|^12.0"
+        "phpunit/phpunit": "^13.4.6"
     },
     "suggest": {
         "bacon/bacon-qr-code": "Required to render SVG QR codes with the facade/Blade component"
